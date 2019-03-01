@@ -7,7 +7,6 @@ HEAD       = -3
 
 STORED_BOARDS = {}
 
-
 def place_coordinates(board, coords, value):
     x_coord = coords['x']
     y_coord = coords['y']
@@ -72,6 +71,3 @@ def deconstruct_board(state):
     del STORED_BOARDS[game_id]
     print('Board deleted for finished game. id=' + game_id + '\n\n')
     return
-
-
-
