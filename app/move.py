@@ -5,7 +5,8 @@ DIRECTIONS = ('up', 'down', 'left', 'right')
 UNOCCUPIED = 0
 OCCUPIED   = -1
 FOOD       = -2
-SAFE       = (UNOCCUPIED, FOOD)
+TAIL       = -3
+SAFE       = (UNOCCUPIED, FOOD, TAIL)
 
 # returns the coordinate above the given coordinate
 def up(coord):
@@ -36,6 +37,13 @@ def get_value(board, coord):
         else OCCUPIED
 
 
+def prediction(board, move, head):
+    working_board = np.copy(board)
+    if not board[get_direction_map[move][head]] == FOOD:
+        # remove_tail(working_board, tail)
+
+
+
 get_direction_map = {
     'up': up,
     'down': down,
@@ -44,4 +52,9 @@ get_direction_map = {
 }
 def calculate_move(board, my_head):
     possible_moves = [direction for direction in DIRECTIONS if get_value(board, get_direction_map[direction](my_head)) in SAFE]
-    return np.random.choice(possible_moves) if len(possible_moves) > 0 else None
+
+    num_possible_moves = len(possible_moves)
+    if num_possible_moves < 2:
+        return possible_moves[0] if num_possible_moves == 1 else 'up'
+
+    return np.random.choice(possible_moves)

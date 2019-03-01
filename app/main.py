@@ -2,6 +2,7 @@ import json
 import os
 import random
 import bottle
+import time
 
 from api import ping_response, start_response, move_response, end_response
 from board import construct_board, update_board, deconstruct_board
@@ -32,10 +33,15 @@ def start():
 
 @bottle.post('/move')
 def move():
+    start_time = time.time()
+
     game_state = bottle.request.json
     new_board = update_board(game_state)
     my_head = (game_state['you']['body'][0]['x'], game_state['you']['body'][0]['y'])
     direction = calculate_move(new_board, my_head)
+
+    total_time = time.time() - start_time
+    print('TOTAL TIME FOR MOVE: ' + str(total_time))
     return move_response(direction)
 
 
