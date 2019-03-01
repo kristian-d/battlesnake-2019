@@ -26,20 +26,16 @@ def ping():
 def start():
     game_state = bottle.request.json
     construct_board(game_state)
-    snake_colour = "#00FF00"
+    snake_colour = '#00FF00'
     return start_response(snake_colour)
 
 
 @bottle.post('/move')
 def move():
     game_state = bottle.request.json
-
     new_board = update_board(game_state)
-    my_head = game_state['you']['body'][0]
-
-    turn = game_state['turn']  # for testing
-    direction = calculate_move(new_board, my_head, turn)
-
+    my_head = (game_state['you']['body'][0]['x'], game_state['you']['body'][0]['y'])
+    direction = calculate_move(new_board, my_head)
     return move_response(direction)
 
 
