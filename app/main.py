@@ -38,7 +38,8 @@ def move():
     new_board = update_board(game_state)
     my_head = (game_state['you']['body'][0]['x'], game_state['you']['body'][0]['y'])
     my_health = game_state['you']['health']
-    direction = calculate_move(new_board, my_head, my_health)
+    my_size = len(game_state['you']['body'])
+    direction = calculate_move(new_board, my_head, my_health, my_size)
 
     total_time = time.time() - start_time
     print('TOTAL TIME FOR MOVE: ' + str(total_time))

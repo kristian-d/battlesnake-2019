@@ -8,6 +8,7 @@ TAIL = -4
 
 STORED_BOARDS = {}
 
+
 def place_coordinates(board, coords, value):
     x_coord = coords['x']
     y_coord = coords['y']
@@ -41,8 +42,8 @@ def update_board(state):
 
     board_state = state['board']
     food_coords = board_state['food']
-    snakes      = board_state['snakes']
-    my_body     = state['you']['body']
+    snakes = board_state['snakes']
+    my_body = state['you']['body']
 
     wipe_board(board)
 
@@ -50,12 +51,11 @@ def update_board(state):
         place_coordinates(board, coord, FOOD)
 
     for snake in snakes:
-        health = snake['health']
         snake_body = snake['body']
         for coord in snake_body[1:]:
             place_coordinates(board, coord, OCCUPIED)
         head_coord = snake_body[0]
-        place_coordinates(board, head_coord, health)
+        place_coordinates(board, head_coord, len(snake_body))
 
     for coord in my_body[1:]:
         place_coordinates(board, coord, OCCUPIED)
