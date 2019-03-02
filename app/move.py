@@ -101,7 +101,9 @@ def weighted_bfs(board, pos, health):
 
     food_weight = np.sum([1.0 / (np.exp(distance)) for distance in food_distance])
 
-    return (0.03 * health * space_weight) + ((100.0 / (health + 1)) * food_weight), len(food_distance)
+    available_food = len(food_distance)
+    return (0.03 * health * space_weight) + ((4 / (available_food + 1)) * (80.0 / (health + 1)) * food_weight),\
+        available_food
 
 
 def get_weight(board, direction, current_head, tail, health, size):
@@ -117,7 +119,7 @@ def get_weight(board, direction, current_head, tail, health, size):
         working_board[tail[1], tail[0]] = UNOCCUPIED
     working_board[potential_head[1], potential_head[0]] = OCCUPIED
     (move_weight, available_food) = weighted_bfs(working_board, potential_head, health)
-    move_weight = move_weight + ((100 / (available_food + 1)) * (100.0 / (health + 1))) if is_food else move_weight
+    move_weight = move_weight + ((8 / (available_food + 1)) * (100.0 / (health + 1))) if is_food else move_weight
     return move_weight
 
 
