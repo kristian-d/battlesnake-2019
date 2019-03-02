@@ -16,36 +16,13 @@ def place_coordinates(board, coords, value):
     return
 
 
-def wipe_board(board):
-    board[:][:] = 0
-
-
-def construct_board(state):
-    print('\n\n\nNew game detected. id=' + state['game']['id'] + '\n\n')
-
-    game_id = state['game']['id']
-
-    board_height = state['board']['height']
-    board_width = state['board']['width']
-    board = np.array([[UNOCCUPIED] * board_height] * board_width)
-
-    STORED_BOARDS[game_id] = {}
-    STORED_BOARDS[game_id]['board'] = board
-
-    return
-
-
 def update_board(state):
-    game_id = state['game']['id']
-
-    board = STORED_BOARDS[game_id]['board']
+    board = np.array([[UNOCCUPIED] * state['board']['height']] * state['board']['width'])
 
     board_state = state['board']
     food_coords = board_state['food']
     snakes = board_state['snakes']
     my_body = state['you']['body']
-
-    wipe_board(board)
 
     for coord in food_coords:
         place_coordinates(board, coord, FOOD)
@@ -62,13 +39,6 @@ def update_board(state):
     my_head_coord = my_body[0]
     place_coordinates(board, my_head_coord, HEAD)
 
-    print('Updated board state for turn ' + str(state['turn']) + ':\n\n' + str(board) + '\n\n')
+    # print('Updated board state for turn ' + str(state['turn']) + ':\n\n' + str(board) + '\n\n')
 
     return board
-
-
-def deconstruct_board(state):
-    game_id = state['game']['id']
-    del STORED_BOARDS[game_id]
-    print('Board deleted for finished game. id=' + game_id + '\n\n')
-    return

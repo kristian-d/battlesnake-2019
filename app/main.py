@@ -3,7 +3,7 @@ import bottle
 import time
 
 from api import ping_response, start_response, move_response, end_response
-from board import construct_board, update_board, deconstruct_board
+from board import update_board
 from move import calculate_move
 
 
@@ -24,10 +24,10 @@ def ping():
 
 @bottle.post('/start')
 def start():
-    game_state = bottle.request.json
-    construct_board(game_state)
-    snake_colour = '#000000'
-    return start_response(snake_colour)
+    snake_colour = '#000000'  # black
+    snake_head = 'tongue'
+    snake_tail = 'sharp'
+    return start_response(snake_colour, snake_head, snake_tail)
 
 
 @bottle.post('/move')
@@ -37,9 +37,10 @@ def move():
     game_state = bottle.request.json
     new_board = update_board(game_state)
     my_head = (game_state['you']['body'][0]['x'], game_state['you']['body'][0]['y'])
+    my_tail = (game_state['you']['body'][-1]['x'], game_state['you']['body'][-1]['y'])
     my_health = game_state['you']['health']
     my_size = len(game_state['you']['body'])
-    direction = calculate_move(new_board, my_head, my_health, my_size)
+    direction = calculate_move(new_board, my_head, my_tail, my_health, my_size)
 
     total_time = time.time() - start_time
     print('TOTAL TIME FOR MOVE: ' + str(total_time))
@@ -48,8 +49,6 @@ def move():
 
 @bottle.post('/end')
 def end():
-    game_state = bottle.request.json
-    deconstruct_board(game_state)
     return end_response()
 
 

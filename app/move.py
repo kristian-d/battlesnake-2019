@@ -38,16 +38,21 @@ get_direction_map = {
 }
 
 
-def surrounding_heads(board, coords, size):
+def surrounding_head_weight(board, coords, size):
+    challengers = 0
     for direction in DIRECTIONS:
         if size <= get_value(board, get_direction_map[direction](coords)):
-            return True
-    return False
+            challengers = challengers + 1
+    return challengers if challengers == 0 else 0.9 / challengers
 
 
-def safe_move(board, coords, size):
+def get_move_safety(board, coords, size):
     value = get_value(board, coords)
-    return value in SAFE and not surrounding_heads(board, coords, size)
+    if value not in SAFE:
+        return 0
+
+    challenger_weight = surrounding_head_weight(board, coords, size)
+    return challenger_weight if challenger_weight > 0 else 1
 
 
 # takes a coordinate and returns the value at that coordinate on the board
@@ -64,10 +69,6 @@ def set_value(board, coord, value):
     return
 
 
-def remove_tail():
-    return
-
-
 def weighted_bfs(board, pos, health):
     q = [pos]
     layer_size_arr = [1, 0]
@@ -77,7 +78,8 @@ def weighted_bfs(board, pos, health):
     food_distance = []
 
     space_weight = 0
-    while q:
+    # while q:
+    while q and depth <= health:
         current = q.pop(0)
         moves = possible_moves(board, current)
         move_coords = [get_direction_map[move](current) for move in moves]
@@ -88,9 +90,7 @@ def weighted_bfs(board, pos, health):
                 food_distance.append(depth)
             set_value(board, coord, OCCUPIED)
 
-        space_weight = space_weight + (1.0 / (depth + 1.0))  # (1 / (np.exp(np.log10(depth))))
-        # weight = weight + (1.0 / ((0.10 * health) - 3)) if value == FOOD else weight
-        # weight = weight + (2 / depth) * (1000 * (10 - (0.1 * health))) if value == FOOD else weight
+        space_weight = space_weight + (1.0 / (depth + 1.0))
 
         layer_size_arr[depth + 1] = layer_size_arr[depth + 1] + len(move_coords)
         counter = counter + 1
@@ -101,20 +101,23 @@ def weighted_bfs(board, pos, health):
 
     food_weight = np.sum([1.0 / (np.exp(distance)) for distance in food_distance])
 
-    return (0.1 * health * space_weight) + ((100.0 / (health + 1)) * food_weight)
+    return (0.03 * health * space_weight) + ((100.0 / (health + 1)) * food_weight), len(food_distance)
 
 
-def get_weight(board, direction, current_head, health, size):
-    if not safe_move(board, get_direction_map[direction](current_head), size):
-        return 0
+def get_weight(board, direction, current_head, tail, health, size):
+    move_safety = get_move_safety(board, get_direction_map[direction](current_head), size)
+    if move_safety < 1:
+        return move_safety
 
     working_board = np.copy(board)
-    new_head = get_direction_map[direction](current_head)
+    potential_head = get_direction_map[direction](current_head)
 
-    is_food = get_value(board, new_head)
-    working_board[new_head[1], new_head[0]] = OCCUPIED
-    move_weight = weighted_bfs(working_board, new_head, health)
-    move_weight = move_weight + 100 * (100.0 / (health + 1)) if is_food else move_weight
+    is_food = get_value(board, potential_head)
+    if not is_food:
+        working_board[tail[1], tail[0]] = UNOCCUPIED
+    working_board[potential_head[1], potential_head[0]] = OCCUPIED
+    (move_weight, available_food) = weighted_bfs(working_board, potential_head, health)
+    move_weight = move_weight + ((100 / (available_food + 1)) * (100.0 / (health + 1))) if is_food else move_weight
     return move_weight
 
 
@@ -122,11 +125,12 @@ def possible_moves(board, coords):
     return [direction for direction in DIRECTIONS if get_value(board, get_direction_map[direction](coords)) in SAFE]
 
 
-def calculate_move(board, my_head, health, size):
-    move_weights = [get_weight(board, direction, my_head, health, size) for direction in DIRECTIONS]
+def calculate_move(board, my_head, my_tail, health, size):
+    move_weights = [get_weight(board, direction, my_head, my_tail, health, size) for direction in DIRECTIONS]
     max_weight_index = 0
     for n in range(len(move_weights)):
         if move_weights[max_weight_index] < move_weights[n]:
             max_weight_index = n
 
+    print('WEIGHTS: ' + str(move_weights))
     return DIRECTIONS[max_weight_index]
