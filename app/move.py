@@ -102,7 +102,7 @@ def weighted_bfs(board, pos, health):
     food_weight = np.sum([1.0 / (np.exp(distance)) for distance in food_distance])
 
     available_food = len(food_distance)
-    return (0.03 * health * space_weight) + ((4 / (available_food + 1)) * (80.0 / (health + 1)) * food_weight),\
+    return (0.03 * health * space_weight) + ((6 / (available_food + 1)) * (80.0 / (health + 1)) * food_weight),\
         available_food
 
 
