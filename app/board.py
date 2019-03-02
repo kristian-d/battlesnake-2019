@@ -1,9 +1,10 @@
 import numpy as np
 
 UNOCCUPIED = 0
-OCCUPIED   = -1
-FOOD       = -2
-HEAD       = -3
+OCCUPIED = -1
+FOOD = -2
+HEAD = -3
+TAIL = -4
 
 STORED_BOARDS = {}
 

@@ -1,12 +1,11 @@
-import json
 import os
-import random
 import bottle
 import time
 
 from api import ping_response, start_response, move_response, end_response
 from board import construct_board, update_board, deconstruct_board
 from move import calculate_move
+
 
 @bottle.route('/')
 def index():
@@ -27,7 +26,7 @@ def ping():
 def start():
     game_state = bottle.request.json
     construct_board(game_state)
-    snake_colour = '#00FF00'
+    snake_colour = '#000000'
     return start_response(snake_colour)
 
 
@@ -38,7 +37,8 @@ def move():
     game_state = bottle.request.json
     new_board = update_board(game_state)
     my_head = (game_state['you']['body'][0]['x'], game_state['you']['body'][0]['y'])
-    direction = calculate_move(new_board, my_head)
+    my_health = game_state['you']['health']
+    direction = calculate_move(new_board, my_head, my_health)
 
     total_time = time.time() - start_time
     print('TOTAL TIME FOR MOVE: ' + str(total_time))
@@ -50,6 +50,7 @@ def end():
     game_state = bottle.request.json
     deconstruct_board(game_state)
     return end_response()
+
 
 # Expose WSGI app (so gunicorn can find it)
 application = bottle.default_app()
