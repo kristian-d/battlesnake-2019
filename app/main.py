@@ -24,7 +24,7 @@ def ping():
 
 @bottle.post('/start')
 def start():
-    snake_colour = '#000000'  # black
+    snake_colour = '#9400D3'  # PURPLE
     snake_head = 'tongue'
     snake_tail = 'sharp'
     return start_response(snake_colour, snake_head, snake_tail)
