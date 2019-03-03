@@ -99,7 +99,7 @@ def weighted_bfs(board, pos, health):
             layer_size_arr.append(0)
             counter = 0
 
-    food_weight = (100.0 / (health + 1)) * np.sum([1.0 / (np.exp(distance)) for distance in food_distance])
+    food_weight = (80.0 / (health + 1)) * np.sum([1.0 / (np.exp(distance)) for distance in food_distance])
     space_weight = (0.06 * health * space_weight)
 
     available_food = len(food_distance)
@@ -122,7 +122,7 @@ def get_weight(board, direction, current_head, tail, health, size):
 
     counterweight = 1.0 / (size - available_spaces + 1.0) if size + 1 > available_spaces else 1
     move_weight = space_weight + food_weight
-    move_weight = move_weight + ((4 / (available_food + 1)) * (80.0 / (health + 1))) if is_food else move_weight
+    move_weight = move_weight + ((4.0 / (available_food + 1.0)) * (80.0 / (health + 1.0))) if is_food else move_weight
     return counterweight * move_weight
 
 
