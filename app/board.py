@@ -17,7 +17,7 @@ def place_coordinates(board, coords, value):
 
 
 def update_board(state):
-    board = np.array([[UNOCCUPIED] * state['board']['height']] * state['board']['width'])
+    board = np.array([[UNOCCUPIED] * state['board']['width']] * state['board']['height'])
 
     board_state = state['board']
     food_coords = board_state['food']

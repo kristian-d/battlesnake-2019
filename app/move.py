@@ -76,10 +76,9 @@ def weighted_bfs(board, pos, health):
     counter = 0
 
     food_distance = []
-
+    available_spaces = 0
     space_weight = 0
-    # while q:
-    while q and depth <= health:
+    while q:
         current = q.pop(0)
         moves = possible_moves(board, current)
         move_coords = [get_direction_map[move](current) for move in moves]
@@ -91,6 +90,7 @@ def weighted_bfs(board, pos, health):
             set_value(board, coord, OCCUPIED)
 
         space_weight = space_weight + (1.0 / (depth + 1.0))
+        available_spaces = available_spaces + 1
 
         layer_size_arr[depth + 1] = layer_size_arr[depth + 1] + len(move_coords)
         counter = counter + 1
@@ -99,9 +99,11 @@ def weighted_bfs(board, pos, health):
             layer_size_arr.append(0)
             counter = 0
 
-    food_weight = np.sum([1.0 / (np.exp(distance)) for distance in food_distance])
+    food_weight = (80.0 / (health + 1)) * np.sum([1.0 / (np.exp(distance)) for distance in food_distance])
+    space_weight = (0.06 * health * space_weight)
 
-    return (0.03 * health * space_weight) + ((100.0 / (health + 1)) * food_weight), len(food_distance)
+    available_food = len(food_distance)
+    return space_weight, food_weight, available_food, available_spaces
 
 
 def get_weight(board, direction, current_head, tail, health, size):
@@ -116,9 +118,12 @@ def get_weight(board, direction, current_head, tail, health, size):
     if not is_food:
         working_board[tail[1], tail[0]] = UNOCCUPIED
     working_board[potential_head[1], potential_head[0]] = OCCUPIED
-    (move_weight, available_food) = weighted_bfs(working_board, potential_head, health)
-    move_weight = move_weight + ((100 / (available_food + 1)) * (100.0 / (health + 1))) if is_food else move_weight
-    return move_weight
+    (space_weight, food_weight, available_food, available_spaces) = weighted_bfs(working_board, potential_head, health)
+
+    counterweight = 1.0 / (size - available_spaces + 1.0) if size + 1 > available_spaces else 1
+    move_weight = space_weight + food_weight
+    move_weight = move_weight + ((4.0 / (available_food + 1.0)) * (80.0 / (health + 1.0))) if is_food else move_weight
+    return counterweight * move_weight
 
 
 def possible_moves(board, coords):
